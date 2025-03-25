@@ -48,10 +48,15 @@ async def main():
         #     model=os.getenv("OPENAI_MODEL", "gpt-4o"),
         #     base_url=None
         # ),
+        # llm_config=LLMConfig(
+        #     api_key="ollama",  # Can be any string for local testing
+        #     model="mistral-nemo:12b-instruct-2407-q8_0",
+        #     base_url="http://192.168.87.34:11434/v1"  # Point to your local model's endpoint
+        # ),
         llm_config=LLMConfig(
-            api_key="ollama",  # Can be any string for local testing
-            model="mistral-nemo:12b-instruct-2407-q8_0",
-            base_url="http://192.168.87.34:11434/v1"  # Point to your local model's endpoint
+            api_key="not-needed",
+            model="local-model",
+            base_url="http://localhost:1234/v1"
         ),
         system_prompt="You are a helpful assistant that can use tools to help answer questions."
     )
@@ -63,12 +68,21 @@ async def main():
     async with BridgeManager(config) as bridge:
         while True:
             try:
-                user_input = input("\nEnter your prompt (or 'quit' to exit): ")
+                # user_input = input("\nEnter your prompt (or 'quit' to exit): ")
+                # if user_input.lower() in ['quit', 'exit', 'q']:
+                #     break
+                    
+                # response = await bridge.process_message(user_input)
+                # print(f"\nResponse: {response}")
+
+                user_input = input("\n請輸入您的提問（輸入 'quit' 結束）：")
                 if user_input.lower() in ['quit', 'exit', 'q']:
                     break
-                    
-                response = await bridge.process_message(user_input)
-                print(f"\nResponse: {response}")
+
+                # 強制模型使用繁體中文回答
+                zh_tw_prompt = "請用繁體中文回答以下問題：" + user_input
+                response = await bridge.process_message(zh_tw_prompt)
+                print(f"\n回應內容（繁體中文）：{response}")
                 
             except KeyboardInterrupt:
                 logger.info("\nExiting...")
